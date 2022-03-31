@@ -1,0 +1,173 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: Deploys a new VPC with 3 public subnets and a EC2 instance for bastion host in ap-northeast-1.
+Metadata:
+  AWS::CloudFormation::Interface:
+    ParameterGroups:
+      - Label:
+          default: Basic configuration
+        Parameters:
+          - NamePrefix
+          - RemoteAccessCIDR
+          - BastionHostImage
+          - KeyPairName
+    ParameterLabels:
+      NamePrefix:
+        default: Name prefix
+      RemoteAccessCIDR:
+        default: Allowed external access CIDR
+      BastionHostImage:
+        default: AMI ID for Bastion host
+      KeyPairName:
+        default: SSH keypair name
+Parameters:
+  NamePrefix:
+    Description: String, whitch is used as prefixes for all resource names deployed by this CloudFormation stack.
+    Type: String
+    Default: ""
+    AllowedPattern: ^(([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])\.){3}([0-9]|[1-9][0-9]|1[0-9]{2}|2[0-4][0-9]|25[0-5])(\/([0-9]|[1-2][0-9]|3[0-2]))$
+    ConstraintDescription: CIDR block parameter must be in the form x.x.x.x/x
+    Description: CIDR IP range that is permitted to access the instances. We recommend
+      that you set this value to a trusted IP range.
+    Type: String
+    Default: "0.0.0.0/0"
+  BastionHostImage:
+    Description: AMI ID of an EC2 instance for bastion host. (Default: the latest Amazon Linux 2 AMI)
+    Type: AWS::SSM::Parameter::Value<String>
+    Default: /aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2
+  KeyPairName:
+    Description: Name of an existing key pair for bastion host.
+    Type: String
+    Default: ""
+Resources:
+  VPC:
+    Type: AWS::EC2::VPC
+    Properties:
+      CidrBlock: "10.0.0.0/16"
+      EnableDnsSupport: true
+      EnableDnsHostnames: true
+      Tags:
+        - Key: "Name"
+          Value: !Sub "${NamePrefix}-vpc"
+  InternetGateway:
+    Type: AWS::EC2::InternetGateway
+    Properties:
+      Tags:
+        - Key: "Name"
+          Value: !Sub "${NamePrefix}-igw"
+  AttachInternetGateway:
+    Type: AWS::EC2::VPCGatewayAttachment
+    Properties:
+      VpcId: !Ref VPC
+      InternetGatewayId: !Ref InternetGateway
+  PublicSubnet1:
+    Type: AWS::EC2::Subnet
+    DependsOn: AttachInternetGateway
+    Properties:
+      CidrBlock: "10.0.1.0/24"
+      AvailabilityZone: ap-northeast-1a
+      MapPublicIpOnLaunch: 'true'
+      VpcId: !Ref VPC
+      Tags:
+        - Key: "Name"
+          Value: !Sub "${NamePrefix}-public-subnet1"
+  PublicSubnet2:
+    Type: AWS::EC2::Subnet
+    DependsOn: AttachInternetGateway
+    Properties:
+      CidrBlock: "10.0.2.0/24"
+      AvailabilityZone: ap-northeast-1c
+      MapPublicIpOnLaunch: 'true'
+      VpcId: !Ref VPC
+      Tags:
+        - Key: "Name"
+          Value: !Sub "${NamePrefix}-public-subnet2"
+  PublicSubnet3:
+    Type: AWS::EC2::Subnet
+    DependsOn: AttachInternetGateway
+    Properties:
+      CidrBlock: "10.0.3.0/24"
+      AvailabilityZone: ap-northeast-1d
+      MapPublicIpOnLaunch: 'true'
+      VpcId: !Ref VPC
+      Tags:
+        - Key: "Name"
+          Value: !Sub "${NamePrefix}-public-subnet3"
+  PublicRouteTable:
+    Type: AWS::EC2::RouteTable
+    DependsOn: AttachInternetGateway
+    Properties:
+      VpcId: !Ref VPC
+      Tags:
+        - Key: "Name"
+          Value: !Sub "${NamePrefix}-public-route"
+  PublicDefaultRoute:
+    Type: AWS::EC2::Route
+    DependsOn: AttachInternetGateway
+    Properties:
+      RouteTableId: !Ref PublicRouteTable
+      DestinationCidrBlock: 0.0.0.0/0
+      GatewayId: !Ref InternetGateway
+  PublicSubnet1RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref PublicSubnet1
+      RouteTableId: !Ref PublicRouteTable
+  PublicSubnet2RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref PublicSubnet2
+      RouteTableId: !Ref PublicRouteTable
+  PublicSubnet3RouteTableAssociation:
+    Type: AWS::EC2::SubnetRouteTableAssociation
+    Properties:
+      SubnetId: !Ref PublicSubnet3
+      RouteTableId: !Ref PublicRouteTable
+  SecurityGroupforPublic:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      VpcId: !Ref VPC
+      GroupName: !Sub "${NamePrefix}-public-sg"
+      GroupDescription: !Sub "${NamePrefix}-public-sg"
+  SecurityGroupforPublicIngress1:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref SecurityGroupforPublic
+      SourceSecurityGroupId: !Ref SecurityGroupforPublic
+      IpProtocol: -1
+  SecurityGroupforPublicIngress2:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref SecurityGroupforPublic
+      CidrIp: !Sub "${RemoteAccessCIDR}"
+      IpProtocol: tcp
+      FromPort: 22
+      ToPort: 22
+  SecurityGroupforPublicIngress3:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref SecurityGroupforPublic
+      CidrIp: !Sub "${RemoteAccessCIDR}"
+      IpProtocol: tcp
+      FromPort: 80
+      ToPort: 80
+  SecurityGroupforPublicIngress4:
+    Type: AWS::EC2::SecurityGroupIngress
+    Properties:
+      GroupId: !Ref SecurityGroupforPublic
+      CidrIp: !Sub "${RemoteAccessCIDR}"
+      IpProtocol: tcp
+      FromPort: 443
+      ToPort: 443
+  EC2LinuxClient:
+    Type: AWS::EC2::Instance
+    Properties:
+      ImageId: !Sub "${BastionHostImage}"
+      InstanceType: t3.micro
+      AvailabilityZone: "ap-northeast-1a"
+      Tags:
+        - Key: "Name"
+          Value: !Sub "${NamePrefix}-linux"
+      KeyName: !Sub "${KeyPairName}"
+      SecurityGroupIds:
+        - !Ref SecurityGroupforPublic
+      SubnetId: !Ref PublicSubnet1
