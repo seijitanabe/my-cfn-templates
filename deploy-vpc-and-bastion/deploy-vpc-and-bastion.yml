@@ -18,7 +18,7 @@ Metadata:
       BastionHostImage:
         default: AMI ID for Bastion host
       KeyPairName:
-        default: SSH keypair name
+        default: SSH key pair name
 Parameters:
   NamePrefix:
     Description: String, whitch is used as prefixes for all resource names deployed by this CloudFormation stack.
