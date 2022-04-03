@@ -10,6 +10,10 @@
   - from the CIDR IP range (specified by the parameter) to port 80
   - from the CIDR IP range (specified by the parameter) to port 443
 - an EC2 instance, whitch installed
+  - unzip
+  - jq
+  - wget
+  - helm
   - kubectl
   - eksctl
 
