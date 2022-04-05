@@ -1,5 +1,5 @@
 # deploy-fsxn-sandbox
-- This CloudFormation template deploys a FSx for ONTAP file system with a volume.
+- This CloudFormation template deploys a FSx for ONTAP file system with a volume in ap-northeast-1.
 ## Resources
 - a new VPC (10.0.0.0/16) in ap-northeast-1
 - 3 public subnet (10.0.1.0/24, 10.0.2.0/24, 10.0.3.0/24)
