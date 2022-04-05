@@ -1,7 +1,7 @@
 # deploy-fsxn-sandbox
 - This CloudFormation template deploys a FSx for ONTAP file system with a volume in ap-northeast-1.
 ## Resources
-- **a new VPC** (10.0.0.0/16) in ap-northeast-1
+  - **a new VPC** (10.0.0.0/16) in ap-northeast-1
 - **3 public subnet** (10.0.1.0/24, 10.0.2.0/24, 10.0.3.0/24)
 - **an Internet Gateway** attached a new VPC
 - **a Route table**, whitch is associated with 3 public subnet and is added a route to a Internet Gateway as the default gateway.
