@@ -27,8 +27,8 @@
   - Name of an existing key pair for the bastion host.
 
 ## Prerequisites
-- **SSH key pair**
+- **SSH key pair:**
   - You need to create a SSH key pair before creating this CloudFomation template.
 
-### Architecture Diagram
+## Architecture Diagram
 ![deploy-vpc-and-bastion-designer.png](deploy-vpc-and-bastion.png)

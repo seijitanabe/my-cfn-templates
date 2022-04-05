@@ -32,7 +32,7 @@
   - fsxadmin and SVM administrator user's password.
 
 ## Prerequisites
-- **SSH key pair**
+- **SSH key pair:**
   - You need to create a SSH key pair before creating this CloudFomation template.
 
 ## Architecture Diagram
