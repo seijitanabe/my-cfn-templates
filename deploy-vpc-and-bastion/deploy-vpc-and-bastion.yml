@@ -142,22 +142,6 @@ Resources:
       IpProtocol: tcp
       FromPort: 22
       ToPort: 22
-  SecurityGroupforPublicIngress3:
-    Type: AWS::EC2::SecurityGroupIngress
-    Properties:
-      GroupId: !Ref SecurityGroupforPublic
-      CidrIp: !Sub "${RemoteAccessCIDR}"
-      IpProtocol: tcp
-      FromPort: 80
-      ToPort: 80
-  SecurityGroupforPublicIngress4:
-    Type: AWS::EC2::SecurityGroupIngress
-    Properties:
-      GroupId: !Ref SecurityGroupforPublic
-      CidrIp: !Sub "${RemoteAccessCIDR}"
-      IpProtocol: tcp
-      FromPort: 443
-      ToPort: 443
   EC2ForBastionHost:
     Type: AWS::EC2::Instance
     Properties:
