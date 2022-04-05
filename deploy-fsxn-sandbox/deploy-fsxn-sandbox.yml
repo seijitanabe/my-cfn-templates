@@ -17,7 +17,7 @@ Metadata:
       RemoteAccessCIDR:
         default: Allowed external access CIDR
       BastionHostImage:
-        default: AMI ID for bastion host
+        default: AMI ID for the bastion host
       KeyPairName:
         default: SSH key pair name
       FsxPassword:
@@ -34,11 +34,11 @@ Parameters:
     Type: String
     Default: "0.0.0.0/0"
   BastionHostImage:
-    Description: AMI ID of an EC2 instance for bastion host.
+    Description: AMI ID of an EC2 instance for the bastion host.
     Type: AWS::SSM::Parameter::Value<String>
     Default: /aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2
   KeyPairName:
-    Description: Name of an existing key pair for bastion host.
+    Description: Name of an existing key pair for the bastion host.
     Type: String
     Default: ""
   FsxPassword:

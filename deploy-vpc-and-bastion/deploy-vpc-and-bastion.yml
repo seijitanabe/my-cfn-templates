@@ -1,5 +1,5 @@
 AWSTemplateFormatVersion: '2010-09-09'
-Description: Deploys a new VPC with 3 public subnets and a EC2 instance for bastion host in ap-northeast-1.
+Description: Deploys a new VPC with 3 public subnets and a EC2 instance for the bastion host in ap-northeast-1.
 Metadata:
   AWS::CloudFormation::Interface:
     ParameterGroups:
@@ -16,7 +16,7 @@ Metadata:
       RemoteAccessCIDR:
         default: Allowed external access CIDR
       BastionHostImage:
-        default: AMI ID for Bastion host
+        default: AMI ID for the bastion host
       KeyPairName:
         default: SSH key pair name
 Parameters:
@@ -31,11 +31,11 @@ Parameters:
     Type: String
     Default: "0.0.0.0/0"
   BastionHostImage:
-    Description: AMI ID of an EC2 instance for bastion host.
+    Description: AMI ID of an EC2 instance for the bastion host.
     Type: AWS::SSM::Parameter::Value<String>
     Default: /aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2
   KeyPairName:
-    Description: Name of an existing key pair for bastion host.
+    Description: Name of an existing key pair for the bastion host.
     Type: String
     Default: ""
 Resources:
