@@ -461,7 +461,7 @@ Resources:
   FSxVol:
     Type: AWS::FSx::Volume
     Properties:
-      Name: !Sub "${NamePrefix}-vol1"
+      Name: vol1
       OntapConfiguration:
           JunctionPath: /vol1
           SizeInMegabytes: 10240
