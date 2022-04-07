@@ -22,6 +22,7 @@ Metadata:
         default: SSH key pair name
       FsxPassword:
         default: FSx for ONTAP password
+
 Parameters:
   NamePrefix:
     Description: String, whitch is used as prefixes for all resource names deployed by this CloudFormation stack.
@@ -42,9 +43,10 @@ Parameters:
     Type: String
     Default: ""
   FsxPassword:
-    Description: fsxadmin and SVM administrator user's password.
+    Description: fsxadmin and vsadmin user's password.
     Type: String
     Default: ""
+
 Resources:
   VPC:
     Type: AWS::EC2::VPC
@@ -55,17 +57,20 @@ Resources:
       Tags:
         - Key: "Name"
           Value: !Sub "${NamePrefix}-vpc"
+
   InternetGateway:
     Type: AWS::EC2::InternetGateway
     Properties:
       Tags:
         - Key: "Name"
           Value: !Sub "${NamePrefix}-igw"
+
   AttachInternetGateway:
     Type: AWS::EC2::VPCGatewayAttachment
     Properties:
       VpcId: !Ref VPC
       InternetGatewayId: !Ref InternetGateway
+
   PublicSubnet1:
     Type: AWS::EC2::Subnet
     DependsOn: AttachInternetGateway
@@ -77,6 +82,7 @@ Resources:
       Tags:
         - Key: "Name"
           Value: !Sub "${NamePrefix}-public-subnet1"
+
   PublicSubnet2:
     Type: AWS::EC2::Subnet
     DependsOn: AttachInternetGateway
@@ -88,6 +94,7 @@ Resources:
       Tags:
         - Key: "Name"
           Value: !Sub "${NamePrefix}-public-subnet2"
+
   PublicSubnet3:
     Type: AWS::EC2::Subnet
     DependsOn: AttachInternetGateway
@@ -99,6 +106,7 @@ Resources:
       Tags:
         - Key: "Name"
           Value: !Sub "${NamePrefix}-public-subnet3"
+
   PublicRouteTable:
     Type: AWS::EC2::RouteTable
     DependsOn: AttachInternetGateway
@@ -107,6 +115,7 @@ Resources:
       Tags:
         - Key: "Name"
           Value: !Sub "${NamePrefix}-public-route"
+
   PublicDefaultRoute:
     Type: AWS::EC2::Route
     DependsOn: AttachInternetGateway
@@ -114,49 +123,57 @@ Resources:
       RouteTableId: !Ref PublicRouteTable
       DestinationCidrBlock: 0.0.0.0/0
       GatewayId: !Ref InternetGateway
+
   PublicSubnet1RouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
       SubnetId: !Ref PublicSubnet1
       RouteTableId: !Ref PublicRouteTable
+
   PublicSubnet2RouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
       SubnetId: !Ref PublicSubnet2
       RouteTableId: !Ref PublicRouteTable
+
   PublicSubnet3RouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
       SubnetId: !Ref PublicSubnet3
       RouteTableId: !Ref PublicRouteTable
-  SecurityGroupforBationHost:
+
+  SecurityGroupforBastionHost:
     Type: AWS::EC2::SecurityGroup
     Properties:
       VpcId: !Ref VPC
       GroupName: !Sub "${NamePrefix}-public-sg"
       GroupDescription: !Sub "${NamePrefix}-public-sg"
+
   SecurityGroupforPublicIngress1:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
-      GroupId: !Ref SecurityGroupforBationHost
+      GroupId: !Ref SecurityGroupforBastionHost
       Description: Access within a Security Group
-      SourceSecurityGroupId: !Ref SecurityGroupforBationHost
+      SourceSecurityGroupId: !Ref SecurityGroupforBastionHost
       IpProtocol: -1
+
   SecurityGroupforPublicIngress2:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
-      GroupId: !Ref SecurityGroupforBationHost
+      GroupId: !Ref SecurityGroupforBastionHost
       Description: SSH access from the specified CIDR IP range
       CidrIp: !Sub "${RemoteAccessCIDR}"
       IpProtocol: tcp
       FromPort: 22
       ToPort: 22
+
   SecurityGroupforFsx:
     Type: AWS::EC2::SecurityGroup
     Properties:
       VpcId: !Ref VPC
       GroupName: !Sub "${NamePrefix}-fsx-sg"
       GroupDescription: !Sub "${NamePrefix}-fsx-sg"
+
   SecurityGroupforFsxIngress1:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
@@ -164,6 +181,7 @@ Resources:
       Description: Access within a Security Group
       SourceSecurityGroupId: !Ref SecurityGroupforFsx
       IpProtocol: -1
+
   SecurityGroupforFsxIngress2:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
@@ -173,6 +191,7 @@ Resources:
       IpProtocol: icmp
       FromPort: -1
       ToPort: -1
+
   SecurityGroupforFsxIngress3:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
@@ -182,222 +201,247 @@ Resources:
       IpProtocol: tcp
       FromPort: 22
       ToPort: 22
+
   SecurityGroupforFsxIngress4:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
       GroupId: !Ref SecurityGroupforFsx
       Description: Remote procedure call for NFS
-      SourceSecurityGroupId: !Ref SecurityGroupforBationHost
+      SourceSecurityGroupId: !Ref SecurityGroupforBastionHost
       IpProtocol: tcp
       FromPort: 111
       ToPort: 111
+
   SecurityGroupforFsxIngress5:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
       GroupId: !Ref SecurityGroupforFsx
       Description: Remote procedure call for CIFS
-      SourceSecurityGroupId: !Ref SecurityGroupforBationHost
+      SourceSecurityGroupId: !Ref SecurityGroupforBastionHost
       IpProtocol: tcp
       FromPort: 135
       ToPort: 135
+
   SecurityGroupforFsxIngress6:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
       GroupId: !Ref SecurityGroupforFsx
       Description: NetBIOS service session for CIFS
-      SourceSecurityGroupId: !Ref SecurityGroupforBationHost
+      SourceSecurityGroupId: !Ref SecurityGroupforBastionHost
       IpProtocol: tcp
       FromPort: 139
       ToPort: 139
+
   SecurityGroupforFsxIngress7:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
       GroupId: !Ref SecurityGroupforFsx
       Description: Simple network management protocol (SNMP)
-      SourceSecurityGroupId: !Ref SecurityGroupforBationHost
+      SourceSecurityGroupId: !Ref SecurityGroupforBastionHost
       IpProtocol: tcp
       FromPort: 161
       ToPort: 161
+
   SecurityGroupforFsxIngress8:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
       GroupId: !Ref SecurityGroupforFsx
       Description: ONTAP REST API access to the IP address of the cluster management LIF or an SVM management LIF
-      SourceSecurityGroupId: !Ref SecurityGroupforBationHost
+      SourceSecurityGroupId: !Ref SecurityGroupforBastionHost
       IpProtocol: tcp
       FromPort: 443
       ToPort: 443
+
   SecurityGroupforFsxIngress9:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
       GroupId: !Ref SecurityGroupforFsx
       Description: Microsoft SMB/CIFS over TCP with NetBIOS framing
-      SourceSecurityGroupId: !Ref SecurityGroupforBationHost
+      SourceSecurityGroupId: !Ref SecurityGroupforBastionHost
       IpProtocol: tcp
       FromPort: 445
       ToPort: 445
+
   SecurityGroupforFsxIngress10:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
       GroupId: !Ref SecurityGroupforFsx
       Description: NFS mount
-      SourceSecurityGroupId: !Ref SecurityGroupforBationHost
+      SourceSecurityGroupId: !Ref SecurityGroupforBastionHost
       IpProtocol: tcp
       FromPort: 635
       ToPort: 635
+
   SecurityGroupforFsxIngress11:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
       GroupId: !Ref SecurityGroupforFsx
       Description: Kerberos
-      SourceSecurityGroupId: !Ref SecurityGroupforBationHost
+      SourceSecurityGroupId: !Ref SecurityGroupforBastionHost
       IpProtocol: tcp
       FromPort: 749
       ToPort: 749
+
   SecurityGroupforFsxIngress12:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
       GroupId: !Ref SecurityGroupforFsx
       Description: NFS server daemon
-      SourceSecurityGroupId: !Ref SecurityGroupforBationHost
+      SourceSecurityGroupId: !Ref SecurityGroupforBastionHost
       IpProtocol: tcp
       FromPort: 2049
       ToPort: 2049
+
   SecurityGroupforFsxIngress13:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
       GroupId: !Ref SecurityGroupforFsx
       Description: iSCSI access through the iSCSI data LIF
-      SourceSecurityGroupId: !Ref SecurityGroupforBationHost
+      SourceSecurityGroupId: !Ref SecurityGroupforBastionHost
       IpProtocol: tcp
       FromPort: 3260
       ToPort: 3260
+
   SecurityGroupforFsxIngress14:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
       GroupId: !Ref SecurityGroupforFsx
       Description: NFS lock daemon
-      SourceSecurityGroupId: !Ref SecurityGroupforBationHost
+      SourceSecurityGroupId: !Ref SecurityGroupforBastionHost
       IpProtocol: tcp
       FromPort: 4045
       ToPort: 4045
+
   SecurityGroupforFsxIngress15:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
       GroupId: !Ref SecurityGroupforFsx
       Description: Network status monitor for NFS
-      SourceSecurityGroupId: !Ref SecurityGroupforBationHost
+      SourceSecurityGroupId: !Ref SecurityGroupforBastionHost
       IpProtocol: tcp
       FromPort: 4046
       ToPort: 4046
+
   SecurityGroupforFsxIngress16:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
       GroupId: !Ref SecurityGroupforFsx
       Description: Management of intercluster communication sessions for SnapMirror
-      SourceSecurityGroupId: !Ref SecurityGroupforBationHost
+      SourceSecurityGroupId: !Ref SecurityGroupforBastionHost
       IpProtocol: tcp
       FromPort: 11104
       ToPort: 11104
+
   SecurityGroupforFsxIngress17:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
       GroupId: !Ref SecurityGroupforFsx
       Description: SnapMirror data transfer using intercluster LIFs
-      SourceSecurityGroupId: !Ref SecurityGroupforBationHost
+      SourceSecurityGroupId: !Ref SecurityGroupforBastionHost
       IpProtocol: tcp
       FromPort: 11105
       ToPort: 11105
+
   SecurityGroupforFsxIngress18:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
       GroupId: !Ref SecurityGroupforFsx
       Description: Remote procedure call for NFS
-      SourceSecurityGroupId: !Ref SecurityGroupforBationHost
+      SourceSecurityGroupId: !Ref SecurityGroupforBastionHost
       IpProtocol: udp
       FromPort: 111
       ToPort: 111
+
   SecurityGroupforFsxIngress19:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
       GroupId: !Ref SecurityGroupforFsx
       Description: Remote procedure call for NFS
-      SourceSecurityGroupId: !Ref SecurityGroupforBationHost
+      SourceSecurityGroupId: !Ref SecurityGroupforBastionHost
       IpProtocol: udp
       FromPort: 135
       ToPort: 135
+
   SecurityGroupforFsxIngress20:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
       GroupId: !Ref SecurityGroupforFsx
       Description: NetBIOS name resolution for CIFS
-      SourceSecurityGroupId: !Ref SecurityGroupforBationHost
+      SourceSecurityGroupId: !Ref SecurityGroupforBastionHost
       IpProtocol: udp
       FromPort: 137
       ToPort: 137
+
   SecurityGroupforFsxIngress21:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
       GroupId: !Ref SecurityGroupforFsx
       Description: NetBIOS name resolution for CIFS
-      SourceSecurityGroupId: !Ref SecurityGroupforBationHost
+      SourceSecurityGroupId: !Ref SecurityGroupforBastionHost
       IpProtocol: udp
       FromPort: 139
       ToPort: 139
+
   SecurityGroupforFsxIngress22:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
       GroupId: !Ref SecurityGroupforFsx
       Description: Simple network management protocol (SNMP)
-      SourceSecurityGroupId: !Ref SecurityGroupforBationHost
+      SourceSecurityGroupId: !Ref SecurityGroupforBastionHost
       IpProtocol: udp
       FromPort: 161
       ToPort: 161
+
   SecurityGroupforFsxIngress23:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
       GroupId: !Ref SecurityGroupforFsx
       Description: NFS mount
-      SourceSecurityGroupId: !Ref SecurityGroupforBationHost
+      SourceSecurityGroupId: !Ref SecurityGroupforBastionHost
       IpProtocol: udp
       FromPort: 635
       ToPort: 635
+
   SecurityGroupforFsxIngress24:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
       GroupId: !Ref SecurityGroupforFsx
       Description: NFS server daemon
-      SourceSecurityGroupId: !Ref SecurityGroupforBationHost
+      SourceSecurityGroupId: !Ref SecurityGroupforBastionHost
       IpProtocol: udp
       FromPort: 2049
       ToPort: 2049
+
   SecurityGroupforFsxIngress25:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
       GroupId: !Ref SecurityGroupforFsx
       Description: NFS lock daemon
-      SourceSecurityGroupId: !Ref SecurityGroupforBationHost
+      SourceSecurityGroupId: !Ref SecurityGroupforBastionHost
       IpProtocol: udp
       FromPort: 4045
       ToPort: 4045
+
   SecurityGroupforFsxIngress26:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
       GroupId: !Ref SecurityGroupforFsx
       Description: Network status monitor for NFS
-      SourceSecurityGroupId: !Ref SecurityGroupforBationHost
+      SourceSecurityGroupId: !Ref SecurityGroupforBastionHost
       IpProtocol: udp
       FromPort: 4046
       ToPort: 4046
+
   SecurityGroupforFsxIngress27:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
       GroupId: !Ref SecurityGroupforFsx
       Description: NFS quota protocol
-      SourceSecurityGroupId: !Ref SecurityGroupforBationHost
+      SourceSecurityGroupId: !Ref SecurityGroupforBastionHost
       IpProtocol: udp
       FromPort: 4049
       ToPort: 4049
+
   EC2ForBastionHost:
     Type: AWS::EC2::Instance
     Properties:
@@ -406,10 +450,10 @@ Resources:
       AvailabilityZone: "ap-northeast-1a"
       Tags:
         - Key: "Name"
-          Value: !Sub "${NamePrefix}-bation"
+          Value: !Sub "${NamePrefix}-bastion"
       KeyName: !Sub "${KeyPairName}"
       SecurityGroupIds:
-        - !Ref SecurityGroupforBationHost
+        - !Ref SecurityGroupforBastionHost
       SubnetId: !Ref PublicSubnet1
       UserData:
         Fn::Base64: !Sub
@@ -427,11 +471,12 @@ Resources:
             curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
             chmod 700 get_helm.sh
             ./get_helm.sh
-            hostnamectl set-hostname ${Prefix}-bation
+            hostnamectl set-hostname ${Prefix}-bastion
             echo "preserve_hostname: true" >> /etc/cloud/cloud.cfg
           - {
               Prefix: !Ref NamePrefix
             }
+
   FSxFileSystem:
     Type: AWS::FSx::FileSystem
     Properties:
@@ -452,12 +497,14 @@ Resources:
       Tags:
         - Key: "Name"
           Value: !Sub "${NamePrefix}-fsx-fs"
+
   FSxSVM:
     Type: AWS::FSx::StorageVirtualMachine
     Properties:
       FileSystemId: !Ref FSxFileSystem
       Name: !Sub "${NamePrefix}-svm1"
       SvmAdminPassword: !Sub "${FsxPassword}"
+
   FSxVol:
     Type: AWS::FSx::Volume
     Properties:

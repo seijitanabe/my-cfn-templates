@@ -29,7 +29,7 @@
 - **SSH key pair name:**
   - Name of an existing key pair for the bastion host.
 - **FSx for ONTAP password:**
-  - fsxadmin and SVM administrator user's password.
+  - fsxadmin and vsadmin user's password.
 
 ## Prerequisites
 - **SSH key pair:**
