@@ -10,7 +10,7 @@
 - **a Security Group for FSx for ONTAP**, which allow the following ingresses from the bastion host:
   - https://docs.aws.amazon.com/fsx/latest/ONTAPGuide/limit-access-security-groups.html
 - **an IAM role for the bastion host** to whitch the "AdministratorAccess" policy is attached
-- **an instance profile for the bation host**
+- **an instance profile for the bastion host**
 - **an EC2 instance** for the bastion host, whitch installed
   - AWS CLI v2
   - unzip
