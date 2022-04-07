@@ -139,8 +139,8 @@ Resources:
     Type: AWS::EC2::SecurityGroup
     Properties:
       VpcId: !Ref VPC
-      GroupName: !Sub "${NamePrefix}-public-sg"
-      GroupDescription: !Sub "${NamePrefix}-public-sg"
+      GroupName: !Sub "${NamePrefix}-bastion-sg"
+      GroupDescription: security group for the bastion host
 
   SecurityGroupforBastionHostIngress1:
     Type: AWS::EC2::SecurityGroupIngress

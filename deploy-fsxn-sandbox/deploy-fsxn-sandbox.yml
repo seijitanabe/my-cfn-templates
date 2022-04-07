@@ -146,8 +146,8 @@ Resources:
     Type: AWS::EC2::SecurityGroup
     Properties:
       VpcId: !Ref VPC
-      GroupName: !Sub "${NamePrefix}-public-sg"
-      GroupDescription: !Sub "${NamePrefix}-public-sg"
+      GroupName: !Sub "${NamePrefix}-bastion-sg"
+      GroupDescription: security group for the bastion host
 
   SecurityGroupforPublicIngress1:
     Type: AWS::EC2::SecurityGroupIngress
@@ -172,7 +172,7 @@ Resources:
     Properties:
       VpcId: !Ref VPC
       GroupName: !Sub "${NamePrefix}-fsx-sg"
-      GroupDescription: !Sub "${NamePrefix}-fsx-sg"
+      GroupDescription: security group for FSx for ONTAP
 
   SecurityGroupforFsxIngress1:
     Type: AWS::EC2::SecurityGroupIngress
