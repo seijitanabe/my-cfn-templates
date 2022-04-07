@@ -7,13 +7,16 @@
 - **a Route table**, whitch is associated with 3 public subnet and is added a route to a Internet Gateway as the default gateway.
 - **a Security Group for the bastion host**, which allow the following ingresses:
   - from the CIDR IP range (specified by the parameter) to port 22
-- **an EC2 instance for the bastion host**, whitch installed
-  - unzip
-  - jq
-  - wget
-  - helm
-  - kubectl
-  - eksctl
+  - **an IAM role for the bastion host** to whitch the "AdministratorAccess" policy is attached
+  - **an instance profile for the bastion host**
+  - **an EC2 instance** for the bastion host, whitch installed
+    - AWS CLI v2
+    - unzip
+    - jq
+    - wget
+    - helm
+    - kubectl
+    - eksctl
 
 ## Parameters
 - **Name prefix:**

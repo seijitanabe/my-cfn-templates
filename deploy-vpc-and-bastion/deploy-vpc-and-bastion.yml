@@ -19,6 +19,7 @@ Metadata:
         default: AMI ID for the bastion host
       KeyPairName:
         default: SSH key pair name
+
 Parameters:
   NamePrefix:
     Description: String, whitch is used as prefixes for all resource names deployed by this CloudFormation stack.
@@ -33,11 +34,12 @@ Parameters:
   BastionHostImage:
     Description: AMI ID of an EC2 instance for the bastion host.
     Type: AWS::SSM::Parameter::Value<String>
-    Default: /aws/service/ami-amazon-linux-latest/amzn2-ami-hvm-x86_64-gp2
+    Default: /aws/service/ami-amazon-linux-latest/amzn2-ami-kernel-5.10-hvm-x86_64-gp2
   KeyPairName:
     Description: Name of an existing key pair for the bastion host.
     Type: String
     Default: ""
+
 Resources:
   VPC:
     Type: AWS::EC2::VPC
@@ -48,17 +50,20 @@ Resources:
       Tags:
         - Key: "Name"
           Value: !Sub "${NamePrefix}-vpc"
+
   InternetGateway:
     Type: AWS::EC2::InternetGateway
     Properties:
       Tags:
         - Key: "Name"
           Value: !Sub "${NamePrefix}-igw"
+
   AttachInternetGateway:
     Type: AWS::EC2::VPCGatewayAttachment
     Properties:
       VpcId: !Ref VPC
       InternetGatewayId: !Ref InternetGateway
+
   PublicSubnet1:
     Type: AWS::EC2::Subnet
     DependsOn: AttachInternetGateway
@@ -70,6 +75,7 @@ Resources:
       Tags:
         - Key: "Name"
           Value: !Sub "${NamePrefix}-public-subnet1"
+
   PublicSubnet2:
     Type: AWS::EC2::Subnet
     DependsOn: AttachInternetGateway
@@ -81,6 +87,7 @@ Resources:
       Tags:
         - Key: "Name"
           Value: !Sub "${NamePrefix}-public-subnet2"
+
   PublicSubnet3:
     Type: AWS::EC2::Subnet
     DependsOn: AttachInternetGateway
@@ -92,6 +99,7 @@ Resources:
       Tags:
         - Key: "Name"
           Value: !Sub "${NamePrefix}-public-subnet3"
+
   PublicRouteTable:
     Type: AWS::EC2::RouteTable
     DependsOn: AttachInternetGateway
@@ -100,6 +108,7 @@ Resources:
       Tags:
         - Key: "Name"
           Value: !Sub "${NamePrefix}-public-route"
+
   PublicDefaultRoute:
     Type: AWS::EC2::Route
     DependsOn: AttachInternetGateway
@@ -107,41 +116,72 @@ Resources:
       RouteTableId: !Ref PublicRouteTable
       DestinationCidrBlock: 0.0.0.0/0
       GatewayId: !Ref InternetGateway
+
   PublicSubnet1RouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
       SubnetId: !Ref PublicSubnet1
       RouteTableId: !Ref PublicRouteTable
+
   PublicSubnet2RouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
       SubnetId: !Ref PublicSubnet2
       RouteTableId: !Ref PublicRouteTable
+
   PublicSubnet3RouteTableAssociation:
     Type: AWS::EC2::SubnetRouteTableAssociation
     Properties:
       SubnetId: !Ref PublicSubnet3
       RouteTableId: !Ref PublicRouteTable
-  SecurityGroupforPublic:
+
+  SecurityGroupforBastionHost:
     Type: AWS::EC2::SecurityGroup
     Properties:
       VpcId: !Ref VPC
       GroupName: !Sub "${NamePrefix}-public-sg"
       GroupDescription: !Sub "${NamePrefix}-public-sg"
-  SecurityGroupforPublicIngress1:
+
+  SecurityGroupforBastionHostIngress1:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
-      GroupId: !Ref SecurityGroupforPublic
-      SourceSecurityGroupId: !Ref SecurityGroupforPublic
+      GroupId: !Ref SecurityGroupforBastionHost
+      SourceSecurityGroupId: !Ref SecurityGroupforBastionHost
       IpProtocol: -1
-  SecurityGroupforPublicIngress2:
+
+  SecurityGroupforBastionHostIngress2:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
-      GroupId: !Ref SecurityGroupforPublic
+      GroupId: !Ref SecurityGroupforBastionHost
       CidrIp: !Sub "${RemoteAccessCIDR}"
       IpProtocol: tcp
       FromPort: 22
       ToPort: 22
+
+  IAMRoleForBastion:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub "${NamePrefix}-bastion-role"
+      Description: IAM role for the bastion host
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - ec2.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/AdministratorAccess
+
+  InstanceProfileForBastion:
+    Type: AWS::IAM::InstanceProfile
+    Properties:
+      InstanceProfileName: !Sub "${NamePrefix}-bastion-instance-profile"
+      Roles:
+        - !Ref IAMRoleForBastion
+
   EC2ForBastionHost:
     Type: AWS::EC2::Instance
     Properties:
@@ -150,15 +190,21 @@ Resources:
       AvailabilityZone: "ap-northeast-1a"
       Tags:
         - Key: "Name"
-          Value: !Sub "${NamePrefix}-bation"
+          Value: !Sub "${NamePrefix}-bastion"
       KeyName: !Sub "${KeyPairName}"
       SecurityGroupIds:
-        - !Ref SecurityGroupforPublic
+        - !Ref SecurityGroupforBastionHost
       SubnetId: !Ref PublicSubnet1
+      IamInstanceProfile: !Ref InstanceProfileForBastion
       UserData:
         Fn::Base64: !Sub
           - |
             #!/bin/bash
+            pip3 uninstall awscli -y
+            curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
+            unzip awscliv2.zip
+            ./aws/install -i /usr/local/aws-cli -b /usr/local/bin
+            aws configure set region ap-northeast-1
             yum update -y
             yum -y install epel-release
             yum -y install unzip wget jq
@@ -171,7 +217,7 @@ Resources:
             curl -fsSL -o get_helm.sh https://raw.githubusercontent.com/helm/helm/main/scripts/get-helm-3
             chmod 700 get_helm.sh
             ./get_helm.sh
-            hostnamectl set-hostname ${Prefix}-bation
+            hostnamectl set-hostname ${Prefix}-bastion
             echo "preserve_hostname: true" >> /etc/cloud/cloud.cfg
           - {
               Prefix: !Ref NamePrefix
