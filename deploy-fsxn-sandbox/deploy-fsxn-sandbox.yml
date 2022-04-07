@@ -43,7 +43,7 @@ Parameters:
     Type: String
     Default: ""
   FsxPassword:
-    Description: fsxadmin and SVM administrator user's password.
+    Description: fsxadmin and vsadmin user's password.
     Type: String
     Default: ""
 
