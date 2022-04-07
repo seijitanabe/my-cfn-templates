@@ -5,11 +5,14 @@
 - **3 public subnet** (10.0.1.0/24, 10.0.2.0/24, 10.0.3.0/24)
 - **an Internet Gateway** attached a new VPC
 - **a Route table**, whitch is associated with 3 public subnet and is added a route to a Internet Gateway as the default gateway.
-- **a Security Group for the bastion host**, which allow the following ingresses:
+- **a Security Group for the bastion host**, which allows the following ingresses:
   - from the CIDR IP range (specified by the parameter) to port 22
 - **a Security Group for FSx for ONTAP**, which allow the following ingresses from the bastion host:
   - https://docs.aws.amazon.com/fsx/latest/ONTAPGuide/limit-access-security-groups.html
+- **an IAM role for the bastion host** to whitch the "AdministratorAccess" policy is attached
+- **an instance profile for the bation host**
 - **an EC2 instance** for the bastion host, whitch installed
+  - AWS CLI v2
   - unzip
   - jq
   - wget
