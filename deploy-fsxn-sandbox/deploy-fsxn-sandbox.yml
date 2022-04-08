@@ -149,15 +149,15 @@ Resources:
       GroupName: !Sub "${NamePrefix}-bastion-sg"
       GroupDescription: security group for the bastion host
 
-  SecurityGroupforPublicIngress1:
+  SecurityGroupforBastionHostIngress1:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
       GroupId: !Ref SecurityGroupforBastionHost
       Description: Access within a Security Group
-      SourceSecurityGroupId: !Ref SecurityGroupforBastionHost
+      CidrIp: "10.0.0.0/16"
       IpProtocol: -1
 
-  SecurityGroupforPublicIngress2:
+  SecurityGroupfoBastionHostIngress2:
     Type: AWS::EC2::SecurityGroupIngress
     Properties:
       GroupId: !Ref SecurityGroupforBastionHost
@@ -187,7 +187,7 @@ Resources:
     Properties:
       GroupId: !Ref SecurityGroupforFsx
       Description: Pinging the instance
-      SourceSecurityGroupId: !Ref SecurityGroupforFsx
+      CidrIp: "10.0.0.0/16"
       IpProtocol: icmp
       FromPort: -1
       ToPort: -1
@@ -197,7 +197,7 @@ Resources:
     Properties:
       GroupId: !Ref SecurityGroupforFsx
       Description: SSH access to the IP address of the cluster management LIF or a node management LIF
-      SourceSecurityGroupId: !Ref SecurityGroupforFsx
+      CidrIp: "10.0.0.0/16"
       IpProtocol: tcp
       FromPort: 22
       ToPort: 22
@@ -207,7 +207,7 @@ Resources:
     Properties:
       GroupId: !Ref SecurityGroupforFsx
       Description: Remote procedure call for NFS
-      SourceSecurityGroupId: !Ref SecurityGroupforBastionHost
+      CidrIp: "10.0.0.0/16"
       IpProtocol: tcp
       FromPort: 111
       ToPort: 111
@@ -217,7 +217,7 @@ Resources:
     Properties:
       GroupId: !Ref SecurityGroupforFsx
       Description: Remote procedure call for CIFS
-      SourceSecurityGroupId: !Ref SecurityGroupforBastionHost
+      CidrIp: "10.0.0.0/16"
       IpProtocol: tcp
       FromPort: 135
       ToPort: 135
@@ -227,7 +227,7 @@ Resources:
     Properties:
       GroupId: !Ref SecurityGroupforFsx
       Description: NetBIOS service session for CIFS
-      SourceSecurityGroupId: !Ref SecurityGroupforBastionHost
+      CidrIp: "10.0.0.0/16"
       IpProtocol: tcp
       FromPort: 139
       ToPort: 139
@@ -237,7 +237,7 @@ Resources:
     Properties:
       GroupId: !Ref SecurityGroupforFsx
       Description: Simple network management protocol (SNMP)
-      SourceSecurityGroupId: !Ref SecurityGroupforBastionHost
+      CidrIp: "10.0.0.0/16"
       IpProtocol: tcp
       FromPort: 161
       ToPort: 161
@@ -247,7 +247,7 @@ Resources:
     Properties:
       GroupId: !Ref SecurityGroupforFsx
       Description: ONTAP REST API access to the IP address of the cluster management LIF or an SVM management LIF
-      SourceSecurityGroupId: !Ref SecurityGroupforBastionHost
+      CidrIp: "10.0.0.0/16"
       IpProtocol: tcp
       FromPort: 443
       ToPort: 443
@@ -257,7 +257,7 @@ Resources:
     Properties:
       GroupId: !Ref SecurityGroupforFsx
       Description: Microsoft SMB/CIFS over TCP with NetBIOS framing
-      SourceSecurityGroupId: !Ref SecurityGroupforBastionHost
+      CidrIp: "10.0.0.0/16"
       IpProtocol: tcp
       FromPort: 445
       ToPort: 445
@@ -267,7 +267,7 @@ Resources:
     Properties:
       GroupId: !Ref SecurityGroupforFsx
       Description: NFS mount
-      SourceSecurityGroupId: !Ref SecurityGroupforBastionHost
+      CidrIp: "10.0.0.0/16"
       IpProtocol: tcp
       FromPort: 635
       ToPort: 635
@@ -277,7 +277,7 @@ Resources:
     Properties:
       GroupId: !Ref SecurityGroupforFsx
       Description: Kerberos
-      SourceSecurityGroupId: !Ref SecurityGroupforBastionHost
+      CidrIp: "10.0.0.0/16"
       IpProtocol: tcp
       FromPort: 749
       ToPort: 749
@@ -287,7 +287,7 @@ Resources:
     Properties:
       GroupId: !Ref SecurityGroupforFsx
       Description: NFS server daemon
-      SourceSecurityGroupId: !Ref SecurityGroupforBastionHost
+      CidrIp: "10.0.0.0/16"
       IpProtocol: tcp
       FromPort: 2049
       ToPort: 2049
@@ -297,7 +297,7 @@ Resources:
     Properties:
       GroupId: !Ref SecurityGroupforFsx
       Description: iSCSI access through the iSCSI data LIF
-      SourceSecurityGroupId: !Ref SecurityGroupforBastionHost
+      CidrIp: "10.0.0.0/16"
       IpProtocol: tcp
       FromPort: 3260
       ToPort: 3260
@@ -307,7 +307,7 @@ Resources:
     Properties:
       GroupId: !Ref SecurityGroupforFsx
       Description: NFS lock daemon
-      SourceSecurityGroupId: !Ref SecurityGroupforBastionHost
+      CidrIp: "10.0.0.0/16"
       IpProtocol: tcp
       FromPort: 4045
       ToPort: 4045
@@ -317,7 +317,7 @@ Resources:
     Properties:
       GroupId: !Ref SecurityGroupforFsx
       Description: Network status monitor for NFS
-      SourceSecurityGroupId: !Ref SecurityGroupforBastionHost
+      CidrIp: "10.0.0.0/16"
       IpProtocol: tcp
       FromPort: 4046
       ToPort: 4046
@@ -327,7 +327,7 @@ Resources:
     Properties:
       GroupId: !Ref SecurityGroupforFsx
       Description: Management of intercluster communication sessions for SnapMirror
-      SourceSecurityGroupId: !Ref SecurityGroupforBastionHost
+      CidrIp: "10.0.0.0/16"
       IpProtocol: tcp
       FromPort: 11104
       ToPort: 11104
@@ -337,7 +337,7 @@ Resources:
     Properties:
       GroupId: !Ref SecurityGroupforFsx
       Description: SnapMirror data transfer using intercluster LIFs
-      SourceSecurityGroupId: !Ref SecurityGroupforBastionHost
+      CidrIp: "10.0.0.0/16"
       IpProtocol: tcp
       FromPort: 11105
       ToPort: 11105
@@ -347,7 +347,7 @@ Resources:
     Properties:
       GroupId: !Ref SecurityGroupforFsx
       Description: Remote procedure call for NFS
-      SourceSecurityGroupId: !Ref SecurityGroupforBastionHost
+      CidrIp: "10.0.0.0/16"
       IpProtocol: udp
       FromPort: 111
       ToPort: 111
@@ -357,7 +357,7 @@ Resources:
     Properties:
       GroupId: !Ref SecurityGroupforFsx
       Description: Remote procedure call for NFS
-      SourceSecurityGroupId: !Ref SecurityGroupforBastionHost
+      CidrIp: "10.0.0.0/16"
       IpProtocol: udp
       FromPort: 135
       ToPort: 135
@@ -367,7 +367,7 @@ Resources:
     Properties:
       GroupId: !Ref SecurityGroupforFsx
       Description: NetBIOS name resolution for CIFS
-      SourceSecurityGroupId: !Ref SecurityGroupforBastionHost
+      CidrIp: "10.0.0.0/16"
       IpProtocol: udp
       FromPort: 137
       ToPort: 137
@@ -377,7 +377,7 @@ Resources:
     Properties:
       GroupId: !Ref SecurityGroupforFsx
       Description: NetBIOS name resolution for CIFS
-      SourceSecurityGroupId: !Ref SecurityGroupforBastionHost
+      CidrIp: "10.0.0.0/16"
       IpProtocol: udp
       FromPort: 139
       ToPort: 139
@@ -387,7 +387,7 @@ Resources:
     Properties:
       GroupId: !Ref SecurityGroupforFsx
       Description: Simple network management protocol (SNMP)
-      SourceSecurityGroupId: !Ref SecurityGroupforBastionHost
+      CidrIp: "10.0.0.0/16"
       IpProtocol: udp
       FromPort: 161
       ToPort: 161
@@ -397,7 +397,7 @@ Resources:
     Properties:
       GroupId: !Ref SecurityGroupforFsx
       Description: NFS mount
-      SourceSecurityGroupId: !Ref SecurityGroupforBastionHost
+      CidrIp: "10.0.0.0/16"
       IpProtocol: udp
       FromPort: 635
       ToPort: 635
@@ -407,7 +407,7 @@ Resources:
     Properties:
       GroupId: !Ref SecurityGroupforFsx
       Description: NFS server daemon
-      SourceSecurityGroupId: !Ref SecurityGroupforBastionHost
+      CidrIp: "10.0.0.0/16"
       IpProtocol: udp
       FromPort: 2049
       ToPort: 2049
@@ -417,7 +417,7 @@ Resources:
     Properties:
       GroupId: !Ref SecurityGroupforFsx
       Description: NFS lock daemon
-      SourceSecurityGroupId: !Ref SecurityGroupforBastionHost
+      CidrIp: "10.0.0.0/16"
       IpProtocol: udp
       FromPort: 4045
       ToPort: 4045
@@ -427,7 +427,7 @@ Resources:
     Properties:
       GroupId: !Ref SecurityGroupforFsx
       Description: Network status monitor for NFS
-      SourceSecurityGroupId: !Ref SecurityGroupforBastionHost
+      CidrIp: "10.0.0.0/16"
       IpProtocol: udp
       FromPort: 4046
       ToPort: 4046
@@ -437,7 +437,7 @@ Resources:
     Properties:
       GroupId: !Ref SecurityGroupforFsx
       Description: NFS quota protocol
-      SourceSecurityGroupId: !Ref SecurityGroupforBastionHost
+      CidrIp: "10.0.0.0/16"
       IpProtocol: udp
       FromPort: 4049
       ToPort: 4049
@@ -506,7 +506,7 @@ Resources:
           - {
               Prefix: !Ref NamePrefix
             }
-            
+
   FSxFileSystem:
     Type: AWS::FSx::FileSystem
     Properties:
