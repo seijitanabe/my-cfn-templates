@@ -9,6 +9,7 @@
   - from the CIDR IP range (specified by the parameter) to port 22
 - **a security group for FSx for ONTAP**, which allow the following ingresses from the bastion host:
   - https://docs.aws.amazon.com/fsx/latest/ONTAPGuide/limit-access-security-groups.html
+- **an IAM role and an instance profile** for the bastion host
 - **an Amazon EC2 instance** for the bastion host, whitch installed
   - unzip
   - jq

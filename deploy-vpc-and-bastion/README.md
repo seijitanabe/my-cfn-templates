@@ -7,6 +7,7 @@
 - **a route table**, whitch is associated with 3 public subnet and is added a route to an internet gateway as the default gateway.
 - **a security group for the bastion host**, which allow the following ingresses:
   - from the CIDR IP range (specified by the parameter) to port 22
+- **an IAM role and an instance profile** for the bastion host
 - **an Amazon EC2 instance for the bastion host**, whitch installed
   - unzip
   - jq
