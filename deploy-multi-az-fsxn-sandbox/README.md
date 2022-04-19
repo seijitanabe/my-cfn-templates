@@ -1,5 +1,5 @@
-# deploy-fsxn-sandbox
-- This CloudFormation template deploys a FSx for ONTAP file system with a SVM and a volume in ap-northeast-1.
+# deploy-multi-az-fsxn-sandbox
+- This CloudFormation template deploys a FSx for ONTAP file system (multi AZ) with a SVM and a volume in ap-northeast-1.
 ## Resources
 - **a new VPC** (10.0.0.0/16) in ap-northeast-1
 - **3 public subnet** (10.0.1.0/24, 10.0.2.0/24, 10.0.3.0/24)
@@ -17,7 +17,7 @@
   - helm
   - kubectl
   - eksctl
-- **a FSx for ONTAP file system** with **a SVM** and **a volume**
+- **a FSx for ONTAP file system** with **a SVM** and **a volume** in multi AZs
 
 ## Parameters
 - **Name prefix:**
@@ -37,4 +37,4 @@
   - You need to create a SSH key pair before creating this CloudFomation template.
 
 ## Architecture Diagram
-![deploy-fsxn-sandbox.png](deploy-fsxn-sandbox.png)
+![deploy-multi-az-fsxn-sandbox.png](deploy-multi-az-fsxn-sandbox.png)
